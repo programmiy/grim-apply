@@ -4,6 +4,8 @@
         "*.dbclient-js": "javascript",
         ".fantomasignore": "ignore",
         "xstring": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "cstddef": "cpp",
+        "string": "cpp"
     }
 }
