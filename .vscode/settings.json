@@ -3,6 +3,7 @@
         "*.ndjson": "jsonl",
         "*.dbclient-js": "javascript",
         ".fantomasignore": "ignore",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "vector": "cpp"
     }
 }
