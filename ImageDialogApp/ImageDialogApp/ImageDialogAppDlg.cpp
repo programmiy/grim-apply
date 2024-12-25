@@ -12,12 +12,12 @@
 #include <errno.h>
 #include <ctime>
 #include <gdiplus.h>
-using namespace Gdiplus;
+using namespace Gdiplus; 
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
+// TODO: 불필요한 주석 제거
 BEGIN_MESSAGE_MAP(CImageDialogAppDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_DRAW, &CImageDialogAppDlg::OnBnClickedButtonDraw)
     ON_BN_CLICKED(IDC_BUTTON_ACTION, &CImageDialogAppDlg::OnBnClickedButtonAction)
@@ -91,6 +91,7 @@ BOOL CImageDialogAppDlg::OnInitDialog()
     SetDlgItemText(IDC_STATIC_X2_LABEL, _T("X2:"));
     SetDlgItemText(IDC_STATIC_Y2_LABEL, _T("Y2:"));
 
+    // TODO: crect가 아닌 cimage로 변경 예정이라 삭제 예정
     // 그리기 영역 초기화
     CRect rect;
     m_imageCtrl.GetClientRect(&rect);
@@ -125,42 +126,13 @@ void CImageDialogAppDlg::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CImageDialogAppDlg::OnBnClickedButtonDraw()
 {
-    CString strX1, strY1;
-    m_editX1.GetWindowText(strX1);
-    m_editY1.GetWindowText(strY1);
+    // TODO: 파이썬으로 구현한 알고리즘 토대로 사용하기 위해 전부 삭제, 최우선 개발 사항
 
-    int x1 = _ttoi(strX1);
-    int y1 = _ttoi(strY1);
-
-    // 랜덤한 반지름 생성
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(10, 100); // 반지름 범위 설정
-    int radius = dis(gen);
-
-    // 그리기 영역을 가져옵니다.
-    CRect rect;
-    m_imageCtrl.GetClientRect(&rect);
-    CDC* pDC = m_imageCtrl.GetDC();
-
-    // 그리기 영역 초기화 (검은색 배경)
-    pDC->FillSolidRect(&rect, RGB(0, 0, 0));
-
-    // 원 그리기 (하얀색 내부, 색 테두리)
-    CPen pen(PS_SOLID, 1, RGB(255, 255, 255));
-    CBrush brush(RGB(255, 255, 255));
-    CPen* pOldPen = pDC->SelectObject(&pen);
-    CBrush* pOldBrush = pDC->SelectObject(&brush);
-    pDC->Ellipse(x1 - radius, y1 - radius, x1 + radius, y1 + radius);
-    pDC->SelectObject(pOldPen);
-    pDC->SelectObject(pOldBrush);
-
-    // DC를 해제합니다.
-    m_imageCtrl.ReleaseDC(pDC);
 }
 
 void CImageDialogAppDlg::OnBnClickedButtonAction()
 {
+    // TODO: 파이썬 알고리즘, rect 방식 응용해서 수정할 계획
     CString strX1, strY1, strX2, strY2;
     m_editX1.GetWindowText(strX1);
     m_editY1.GetWindowText(strY1);
@@ -185,11 +157,13 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
         }
 
         // 이동 간격 설정
-        int step = 10;
+        int step = 10; // TODO: timer 적용
 
         // 이동하면서 원을 그립니다.
         for (int x = x1, y = y1; x <= x2 && y <= y2; x += step, y += step)
         {
+        // TODO: crect가 아닌 cimage로 변경, 저장 방식은 좌표값 포함
+
             // 그리기 영역을 가져옵니다.
             CRect rect;
             m_imageCtrl.GetClientRect(&rect);
@@ -235,9 +209,10 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
 
 void CImageDialogAppDlg::OnBnClickedButtonOpen()
 {
-    CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||"));
+    CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||")); // TODO: all files 선택지 제거
     if (dlg.DoModal() == IDOK)
     {
+    // TODO: 좌표값 출력은 파이썬 알고리즘 참고해서 파일명에 저장된 좌표값 가져오는걸로 수정 
         CString path = dlg.GetPathName();
 
         // 이미지 로드
@@ -283,6 +258,7 @@ void CImageDialogAppDlg::OnPaint()
 {
     if (IsIconic())
     {
+    // TODO: OnDraw()로 대체 여부 결정
         CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
 
         SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
@@ -306,16 +282,11 @@ void CImageDialogAppDlg::OnPaint()
 
 void CImageDialogAppDlg::OnBnClickedOk()
 {
-    // TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+    // TODO: ok 버튼 제거
     CDialogEx::OnOK();
 }
 
 void CImageDialogAppDlg::OnEnChangeEditX1()
 {
-    // TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
-    // CDialogEx::OnInitDialog() 함수를 재지정 
-    //하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
-    // ENM_CHANGE가 있으면 마스크에 ORed를 플래그합니다.
-
-    // TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+    // TODO:  editx1 제거
 }
