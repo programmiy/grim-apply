@@ -14,6 +14,9 @@
 #include <gdiplus.h>
 using namespace Gdiplus; 
 
+// TODO: 4일간 나를 괴롭혔던 오류 해결 완료
+// 디버그 >> release로 변경
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -25,12 +28,13 @@ BEGIN_MESSAGE_MAP(CImageDialogAppDlg, CDialogEx)
     ON_WM_SYSCOMMAND()
     ON_WM_PAINT()
     
-    ON_BN_CLICKED(IDOK, &CImageDialogAppDlg::OnBnClickedOk)
-    ON_EN_CHANGE(IDC_EDIT_X1, &CImageDialogAppDlg::OnEnChangeEditX1)
+    
 END_MESSAGE_MAP()
 
 CImageDialogAppDlg::CImageDialogAppDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_IMAGEDIALOGAPP_DIALOG, pParent), m_radius(0), m_x(0), m_y(0)
+    , m_Bitmap(nullptr)
+    , gdiplusToken(0)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -42,10 +46,9 @@ void CImageDialogAppDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_EDIT_Y1, m_editY1);
     DDX_Control(pDX, IDC_EDIT_X2, m_editX2);
     DDX_Control(pDX, IDC_EDIT_Y2, m_editY2);
-    DDX_Control(pDX, IDC_STATIC_IMAGE, m_imageCtrl);
+    
 }
 
-ULONG_PTR gdiplusToken;
 
 BOOL CImageDialogAppDlg::OnInitDialog()
 {
@@ -69,16 +72,16 @@ BOOL CImageDialogAppDlg::OnInitDialog()
             pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
         }
     }
-
+    m_radius = (rand() % 90) + 10;
     SetIcon(m_hIcon, TRUE);         // 큰 아이콘을 설정합니다.
     SetIcon(m_hIcon, FALSE);        // 작은 아이콘을 설정합니다.
+    
 
     // 컨트롤 초기화
     if (!m_editX1.SubclassDlgItem(IDC_EDIT_X1, this) ||
         !m_editY1.SubclassDlgItem(IDC_EDIT_Y1, this) ||
         !m_editX2.SubclassDlgItem(IDC_EDIT_X2, this) ||
-        !m_editY2.SubclassDlgItem(IDC_EDIT_Y2, this) ||
-        !m_imageCtrl.SubclassDlgItem(IDC_STATIC_IMAGE, this))
+        !m_editY2.SubclassDlgItem(IDC_EDIT_Y2, this))
     {
         AfxMessageBox(_T("컨트롤 초기화 실패"));
         return FALSE;
@@ -91,42 +94,68 @@ BOOL CImageDialogAppDlg::OnInitDialog()
     SetDlgItemText(IDC_STATIC_X2_LABEL, _T("X2:"));
     SetDlgItemText(IDC_STATIC_Y2_LABEL, _T("Y2:"));
 
-    // TODO: crect가 아닌 cimage로 변경 예정이라 삭제 예정
-    // 그리기 영역 초기화
-    CRect rect;
-    m_imageCtrl.GetClientRect(&rect);
-    CDC* pDC = m_imageCtrl.GetDC();
-    pDC->FillSolidRect(&rect, RGB(0, 0, 0)); // 바탕색 설정
-    pDC->Rectangle(&rect); // 테두리 설정
-    m_imageCtrl.ReleaseDC(pDC);
 
     return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
 CImageDialogAppDlg::~CImageDialogAppDlg()
 {
+    if (m_Bitmap != nullptr)
+    {
+        delete m_Bitmap; // 메모리 해제
+        m_Bitmap = nullptr;
+    }
     CDialogEx::OnDestroy();
 
-    // GDI+ 종료
-    GdiplusShutdown(gdiplusToken);
+
+
 }
 
-void CImageDialogAppDlg::OnSysCommand(UINT nID, LPARAM lParam)
-{
-    if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-    {
-        CDialogEx dlgAbout(IDD_ABOUTBOX);
-        dlgAbout.DoModal();
-    }
-    else
-    {
-        CDialogEx::OnSysCommand(nID, lParam);
-    }
-}
+
 
 void CImageDialogAppDlg::OnBnClickedButtonDraw()
 {
-    // TODO: 파이썬으로 구현한 알고리즘 토대로 사용하기 위해 전부 삭제, 최우선 개발 사항
+    try
+    {
+        // TODO: 파이썬으로 구현한 알고리즘 토대로 사용하기 위해 전부 삭제, 최우선 개발 사항
+        CString strX1, strY1;
+        m_editX1.GetWindowTextW(strX1);
+        m_editY1.GetWindowTextW(strY1);
+        int x1 = _ttoi(strX1);
+        int y1 = _ttoi(strY1);
+        
+        CRect crect;
+        GetClientRect(&crect); 
+
+
+        // 수십번 시도해보고 전체폭 -244가 적당한 값임을 발견
+        // GDI+ Bitmap 생성
+        Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
+        Gdiplus::Graphics graphics(&bitmap);
+        graphics.Clear(Color(0, 0, 0, 0));
+        
+        Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
+        
+        int width = bitmap.GetWidth();
+        // int height = bitmap.GetHeight();
+        int proportional_radius = min(width, crect.Height()) / 20;  // 이미지 크기의 1/20로 설정
+        int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
+        graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
+        // 그린 이미지를 다이얼로그에 표시
+                
+        if (m_Bitmap != nullptr)
+        {
+            delete m_Bitmap; // 기존 Bitmap 해제
+        }
+        m_Bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
+        Invalidate();  // 다이얼로그를 다시 그리도록 요청
+    }
+    catch(const std::exception& )
+    {
+        AfxMessageBox(_T("Invalid input for coordinates."));
+    }
+
+
 
 }
 
@@ -143,9 +172,21 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
     int y1 = _ttoi(strY1);
     int x2 = _ttoi(strX2);
     int y2 = _ttoi(strY2);
+    Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
+
 
     // 별도의 스레드에서 작업을 수행합니다.
     std::thread([=]() {
+        
+        Gdiplus::Bitmap bitmap(1280, 720, PixelFormat24bppRGB);
+        Gdiplus::Graphics graphics(&bitmap);
+        graphics.Clear(Color(0, 0, 0, 0));
+        int width = bitmap.GetWidth();
+        int height = bitmap.GetHeight();
+        int proportional_radius = min(width, height) / 20;  // 이미지 크기의 1/20로 설정
+        int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
+
+        SolidBrush brush(Color(255, 255, 255, 255));
         // 디렉토리 생성
         if (_mkdir("image") == -1)
         {
@@ -157,37 +198,25 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
         }
 
         // 이동 간격 설정
-        int step = 10; // TODO: timer 적용
+        int step = 10; // TODO: timer 적용 안해도 될지도
 
         // 이동하면서 원을 그립니다.
         for (int x = x1, y = y1; x <= x2 && y <= y2; x += step, y += step)
         {
         // TODO: crect가 아닌 cimage로 변경, 저장 방식은 좌표값 포함
 
-            // 그리기 영역을 가져옵니다.
-            CRect rect;
-            m_imageCtrl.GetClientRect(&rect);
-            CDC* pDC = m_imageCtrl.GetDC();
+            graphics.FillEllipse(&brush, x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
 
-            // 그리기 영역 초기화 (검은색 배경)
-            pDC->FillSolidRect(&rect, RGB(0, 0, 0));
 
-            // 원 그리기 (하얀색 내부, 검은색 테두리)
-            CPen pen(PS_SOLID, 1, RGB(0, 0, 0));
-            CBrush brush(RGB(255, 255, 255));
-            CPen* pOldPen = pDC->SelectObject(&pen);
-            CBrush* pOldBrush = pDC->SelectObject(&brush);
-            pDC->Ellipse(x - 50, y - 50, x + 50, y + 50);
-            pDC->SelectObject(pOldPen);
-            pDC->SelectObject(pOldBrush);
-
-            // 현재 화면을 캡처하여 파일로 저장
+            // image save
             CImage image;
-            image.Create(rect.Width(), rect.Height(), 32);
-            CDC* pImageDC = CDC::FromHandle(image.GetDC());
-            pImageDC->BitBlt(0, 0, rect.Width(), rect.Height(), pDC, 0, 0, SRCCOPY);
+            image.Create(1280, 720, 24);
+            HDC hdc = image.GetDC();
+            Graphics imageGraphics(hdc);
+            imageGraphics.DrawImage(&bitmap, 0, 0, 1280, 720);
             image.ReleaseDC();
 
+ 
             // 파일 이름 생성 (타임스탬프 포함)
             CString fileName;
             CTime time = CTime::GetCurrentTime();
@@ -195,11 +224,11 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                             time.GetYear(), time.GetMonth(), time.GetDay(),
                             time.GetHour(), time.GetMinute(), time.GetSecond(), x);
 
-            // 파일 저장
-            image.Save(fileName, Gdiplus::ImageFormatJPEG);
+            // // 파일 저장
+            // image.Save(fileName, Gdiplus::ImageFormatJPEG);
 
-            // DC를 해제합니다.
-            m_imageCtrl.ReleaseDC(pDC);
+            // bitmap 초기화
+            graphics.Clear(Color(0, 0, 0, 0));
 
             // 잠시 대기 (애니메이션 효과)
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -254,39 +283,29 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
     }
 }
 
-void CImageDialogAppDlg::OnPaint()
+void CImageDialogAppDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-    if (IsIconic())
+    if ((nID & 0xFFF0) == IDM_ABOUTBOX)
     {
-    // TODO: OnDraw()로 대체 여부 결정
-        CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
-
-        SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
-
-        // 클라이언트 사각형에서 아이콘을 가운데에 맞춥니다.
-        int cxIcon = GetSystemMetrics(SM_CXICON);
-        int cyIcon = GetSystemMetrics(SM_CYICON);
-        CRect rect;
-        GetClientRect(&rect);
-        int x = (rect.Width() - cxIcon + 1) / 2;
-        int y = (rect.Height() - cyIcon + 1) / 2;
-
-        // 아이콘을 그립니다.
-        dc.DrawIcon(x, y, m_hIcon);
+        CDialogEx dlgAbout(IDD_ABOUTBOX);
+        dlgAbout.DoModal();
     }
     else
     {
-        CDialogEx::OnPaint();
+        CDialogEx::OnSysCommand(nID, lParam);
     }
 }
 
-void CImageDialogAppDlg::OnBnClickedOk()
+void CImageDialogAppDlg::OnPaint()
 {
-    // TODO: ok 버튼 제거
-    CDialogEx::OnOK();
+    CPaintDC dc(this);
+    if (m_Bitmap != nullptr)
+    {
+        Graphics graphics(dc);
+        graphics.DrawImage(m_Bitmap, 0, 0);
+    }
+
+    CDialogEx::OnPaint();
 }
 
-void CImageDialogAppDlg::OnEnChangeEditX1()
-{
-    // TODO:  editx1 제거
-}
+

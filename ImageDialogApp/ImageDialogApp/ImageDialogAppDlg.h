@@ -15,8 +15,8 @@ public:
 	afx_msg void OnBnClickedButtonAction();
 	afx_msg void OnBnClickedButtonOpen();
 	virtual BOOL OnInitDialog();
-	void OnInitDialogCustom();
-	void DrawCircleOnBlack(CImage& img, int x, int y, int radius);    
+	
+
 
     virtual ~CImageDialogAppDlg();                  // 소멸자 추가
 	// 대화 상자 데이터입니다.
@@ -27,6 +27,9 @@ private:
     int m_x;
 	CImage m_offScreen; // 오프스크린 이미지
     int m_y;
+	ULONG_PTR gdiplusToken;
+	Gdiplus::Bitmap* m_Bitmap;
+    
 
     int m_radius; // 반지름을 저장하는 멤버 변수
 
@@ -34,7 +37,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
+	
 
 	// 구현입니다.
 	protected:
@@ -45,9 +48,6 @@ protected:
 		CEdit m_editY2;
 		CStatic m_imageCtrl;
 		// 생성된 메시지 맵 함수
-
+		
 		DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnBnClickedOk();
-	afx_msg void OnEnChangeEditX1();
 };
