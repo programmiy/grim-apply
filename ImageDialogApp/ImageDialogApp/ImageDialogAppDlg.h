@@ -28,8 +28,7 @@ private:
 	CImage m_offScreen; // 오프스크린 이미지
     int m_y;
 	ULONG_PTR gdiplusToken;
-	Gdiplus::Bitmap* m_Bitmap;
-    
+    Gdiplus::Bitmap* m_bitmap; // GDI+ Bitmap 포인터
 
     int m_radius; // 반지름을 저장하는 멤버 변수
 

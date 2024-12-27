@@ -14,10 +14,9 @@
 #include <gdiplus.h>
 using namespace Gdiplus; 
 
-// HACK: 4일간 나를 괴롭혔던 오류 해결 완료
-// FIXME:  디버그 >> release로 변경
+// TODO: 4일간 나를 괴롭혔던 오류 해결 완료
+// 디버그 >> release로 변경
 
-// HACK: 파이썬으로 알고리즘을 한번 구현을 하니 mfc로 구현하는데 어려움이 없어짐
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -34,7 +33,7 @@ END_MESSAGE_MAP()
 
 CImageDialogAppDlg::CImageDialogAppDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_IMAGEDIALOGAPP_DIALOG, pParent), m_radius(0), m_x(0), m_y(0)
-    , m_Bitmap(nullptr)
+    , m_bitmap(nullptr)
     , gdiplusToken(0)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -58,6 +57,23 @@ BOOL CImageDialogAppDlg::OnInitDialog()
     GdiplusStartupInput gdiplusStartupInput;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
+    CRect crect;
+    GetClientRect(&crect);
+    BITMAPINFO bmi;
+    ZeroMemory(&bmi, sizeof(BITMAPINFO));
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = crect.Width() - 244;
+    bmi.bmiHeader.biHeight = crect.Height();
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    m_bitmap = Gdiplus::Bitmap::FromBITMAPINFO(&bmi, NULL);
+    if (m_bitmap->GetLastStatus() != Gdiplus::Ok) {
+        AfxMessageBox(_T("Failed to create Gdiplus::Bitmap"));
+        delete m_bitmap;
+        m_bitmap = nullptr;
+        return FALSE;
+    }
 
     // 시스템 메뉴에 "정보..." 메뉴 항목을 추가합니다.
     CMenu* pSysMenu = GetSystemMenu(FALSE);
@@ -101,10 +117,10 @@ BOOL CImageDialogAppDlg::OnInitDialog()
 
 CImageDialogAppDlg::~CImageDialogAppDlg()
 {
-    if (m_Bitmap != nullptr)
+    if (m_bitmap != nullptr)
     {
-        delete m_Bitmap; // 메모리 해제
-        m_Bitmap = nullptr;
+        delete m_bitmap; // 메모리 해제
+        m_bitmap = nullptr;
     }
     CDialogEx::OnDestroy();
 
@@ -116,127 +132,127 @@ CImageDialogAppDlg::~CImageDialogAppDlg()
 
 void CImageDialogAppDlg::OnBnClickedButtonDraw()
 {
-    // 별도의 스레드에서 작업을 수행합니다.
-    std::thread([this]() {
-        try
+    try
+    {
+        // TODO: 파이썬으로 구현한 알고리즘 토대로 사용하기 위해 전부 삭제, 최우선 개발 사항
+            
+        CString strX1, strY1;
+        m_editX1.GetWindowTextW(strX1);
+        m_editY1.GetWindowTextW(strY1);
+        int x1 = _ttoi(strX1);
+        int y1 = _ttoi(strY1);
+
+        CRect crect;
+        GetClientRect(&crect); 
+
+        // GDI+ Bitmap 생성
+        Gdiplus::Bitmap bitmap(crect.Width() - 244, crect.Height(), PixelFormat24bppRGB);
+        Gdiplus::Graphics graphics(&bitmap);
+        graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
+
+        Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
+
+        int width = bitmap.GetWidth();
+        int proportional_radius = min(width, crect.Height()) / 20;  // 이미지 크기의 1/20로 설정
+        int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
+        graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
+
+        // 그린 이미지를 다이얼로그에 표시
+        if (m_bitmap != nullptr)
         {
-            // TODO: 파이썬으로 구현한 알고리즘 토대로 사용하기 위해 전부 삭제, 최우선 개발 사항
-            CString strX1, strY1;
-            m_editX1.GetWindowTextW(strX1);
-            m_editY1.GetWindowTextW(strY1);
-            int x1 = _ttoi(strX1);
-            int y1 = _ttoi(strY1);
-
-            CRect crect;
-            GetClientRect(&crect); 
-
-            // GDI+ Bitmap 생성
-            Gdiplus::Bitmap bitmap(crect.Width() - 244, crect.Height(), PixelFormat24bppRGB);
-            Gdiplus::Graphics graphics(&bitmap);
-            graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
-
-            Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
-
-            int width = bitmap.GetWidth();
-            int proportional_radius = min(width, crect.Height()) / 20;  // 이미지 크기의 1/20로 설정
-            int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
-            graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
-
-            // 그린 이미지를 다이얼로그에 표시
-            if (m_Bitmap != nullptr)
-            {
-                delete m_Bitmap; // 기존 Bitmap 해제
-            }
-            m_Bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
-
-            // UI 업데이트는 메인 스레드에서 수행해야 합니다.
-            PostMessage(WM_PAINT);
+            delete m_bitmap; // 기존 Bitmap 해제
         }
-        catch(const std::exception&)
-        {
-            AfxMessageBox(_T("Invalid input for coordinates."));
-        }
-    }).detach(); // 스레드를 분리하여 백그라운드에서 실행되도록 합니다.
+        m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
+
+        Invalidate();  // 다이얼로그를 다시 그리도록 요청
+    }
+    catch(const std::exception& )
+    {
+        AfxMessageBox(_T("Invalid input for coordinates."));
+    }
+
+
+
 }
 
 void CImageDialogAppDlg::OnBnClickedButtonAction()
 {
-    // TODO: 파이썬 알고리즘, rect 방식 응용해서 수정할 계획, 저장
+    // TODO: 파이썬 알고리즘, rect 방식 응용해서 수정할 계획
     // 핵심은 원의 출력, 저장, 초기화, 새 원 출력의 구조
     // 스레드 작업이 필수
 
-    CString strX1, strY1, strX2, strY2;
-    m_editX1.GetWindowText(strX1);
-    m_editY1.GetWindowText(strY1);
-    m_editX2.GetWindowText(strX2);
-    m_editY2.GetWindowText(strY2);
 
-    int x1 = _ttoi(strX1);
-    int y1 = _ttoi(strY1);
-    int x2 = _ttoi(strX2);
-    int y2 = _ttoi(strY2);
-    Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
 
 
     // 별도의 스레드에서 작업을 수행합니다.
-    std::thread([=]() {
-        CRect crect;
-        GetClientRect(&crect); 
-        // 이미 완벽하니 수정하지 말것
-        Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
-        Gdiplus::Graphics graphics(&bitmap);
-        graphics.Clear(Color(0, 0, 0, 0));
-        int width = bitmap.GetWidth();
-        int height = bitmap.GetHeight();
-        int proportional_radius = min(width, height) / 20;  // 이미지 크기의 1/20로 설정
-        int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
+    std::thread([this]() {
+        try {
+            CString strX1, strY1, strX2, strY2;
+            m_editX1.GetWindowText(strX1);
+            m_editY1.GetWindowText(strY1);
+            m_editX2.GetWindowText(strX2);
+            m_editY2.GetWindowText(strY2);
 
-        SolidBrush brush(Color(255, 255, 255, 255));
-        // 디렉토리 생성
-        if (_mkdir("image") == -1)
-        {
-            if (errno != EEXIST)
-            {
-                AfxMessageBox(_T("디렉토리 생성 실패"));
-                return;
+            int x1 = _ttoi(strX1);
+            int y1 = _ttoi(strY1);
+            int x2 = _ttoi(strX2);
+            int y2 = _ttoi(strY2);
+
+            double dx = (x2 - x1) / 50.0;
+            double dy = (y2 - y1) / 50.0;
+            std::vector<std::pair<int, int>> steps;
+            for (int i = 0; i <= 50; ++i) {
+                steps.push_back({ static_cast<int>(x1 + i * dx), static_cast<int>(y1 + i * dy) });
+            }           
+            for (const auto& step : steps) {
+                int x = step.first;
+                int y = step.second;
+                CRect crect;
+                GetClientRect(&crect);
+                Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
+                Gdiplus::Graphics graphics(&bitmap);
+                graphics.Clear(Color(0, 0, 0, 0));
+
+                SolidBrush brush(Color(255, 255, 255, 255));
+
+                int width = bitmap.GetWidth();
+                int height = bitmap.GetHeight();
+                int proportional_radius = min(width, height) / 20;
+                int random_radius = (proportional_radius + 10) / 2; // 예제에서 radius를 10으로 가정
+
+                graphics.FillEllipse(&Gdiplus::SolidBrush(Gdiplus::Color(0, 0, 0)), x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
+
+                
+                // 디렉토리 생성
+                if (_mkdir("image") == -1)
+                {
+                    if (errno != EEXIST)
+                    {
+                        AfxMessageBox(_T("디렉토리 생성 실패"));
+                        return;
+                    }
+                }
+                // 이미지 저장
+                CString filepath;
+                CTime datetime = CTime::GetCurrentTime();
+                CString datetimeStr = datetime.Format(_T("%Y%m%d%H%M%S"));
+                filepath.Format(_T("image/frame_%s.jpg"), datetimeStr.GetString());
+                bitmap.Save(filepath, NULL);
+
+                // 그린 이미지를 다이얼로그에 표시
+                if (m_bitmap != nullptr)
+                {
+                    delete m_bitmap; // 기존 Bitmap 해제
+                }
+                m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
+
+                PostMessage(WM_PAINT);
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
             }
         }
-
-        // 이동 간격 설정
-        int step = 10; // TODO: timer 적용 안해도 될지도
-
-        // 이동하면서 원을 그립니다.
-        for (int x = x1, y = y1; x <= x2 && y <= y2; x += step, y += step)
-        {
-        // TODO: crect가 아닌 cimage로 변경, 저장 방식은 좌표값 포함
-
-            graphics.FillEllipse(&brush, x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
-
-
-            // image save
-            CImage image;
-            image.Create(1280, 720, 24);
-            HDC hdc = image.GetDC();
-            Graphics imageGraphics(hdc);
-            imageGraphics.DrawImage(&bitmap, 0, 0, 1280, 720);
-            image.ReleaseDC();
-
- 
-            // 파일 이름 생성 (타임스탬프 포함)
-            CString fileName;
-            CTime time = CTime::GetCurrentTime();
-            fileName.Format(_T("image\\image_%04d%02d%02d%02d%02d%02d_%03d.jpg"),
-                            time.GetYear(), time.GetMonth(), time.GetDay(),
-                            time.GetHour(), time.GetMinute(), time.GetSecond(), x);
-
-            // // 파일 저장
-            // image.Save(fileName, Gdiplus::ImageFormatJPEG);
-
-            // bitmap 초기화
-            graphics.Clear(Color(0, 0, 0, 0));
-
-            // 잠시 대기 (애니메이션 효과)
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        catch (const std::exception&) {
+            AfxMessageBox(_T("Invalid input for coordinates."));
         }
     }).detach();
 }
@@ -245,6 +261,7 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
 {
     CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||")); // TODO: all files 선택지 제거
     if (dlg.DoModal() == IDOK)
+    {}
     {
     // TODO: 좌표값 출력은 파일명 의존이 아니라 아래코드 참조해서(인터넷 검색한 코드) opencv로 검출 예정 
         // #include <opencv2/opencv.hpp>
@@ -264,41 +281,29 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         //     cv::Mat gray;
         //     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 
-        //     // 블러링 처리
-        //     cv::Mat blurred;
-        //     cv::medianBlur(gray, blurred, 5);
+        // // DC(Device Context)를 가져옵니다.
+        // CDC* pDC = m_imageCtrl.GetDC();
 
-        //     // 허프 변환을 사용하여 원 감지
-        //     std::vector<cv::Vec3f> circles;
-        //     cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1.2, 100, 100, 30, 0, 0);
+        // // 화면을 지웁니다.
+        // pDC->FillSolidRect(&rect, RGB(240, 240, 240)); // 바탕색 설정
 
-        //     // 원이 감지되었는지 확인
-        //     if (!circles.empty())
-        //     {
-        //         for (size_t i = 0; i < circles.size(); i++)
-        //         {
-        //             cv::Vec3i c = circles[i];
-        //             cv::Point center = cv::Point(c[0], c[1]);
-        //             int radius = c[2];
+        // // 이미지 표시
+        // image.Draw(pDC->m_hDC, rect);
 
-        //             // 원의 중심 좌표 출력
-        //             std::cout << "원 중심 좌표: (" << center.x << ", " << center.y << "), 반지름: " << radius << std::endl;
+        // // 원 중심의 X 표시 및 좌표 출력
+        // int x = m_x;
+        // int y = m_y;
+        // pDC->MoveTo(x - 10, y);
+        // pDC->LineTo(x + 10, y);
+        // pDC->MoveTo(x, y - 10);
+        // pDC->LineTo(x, y + 10);
 
-        //             // 원의 중심과 경계 그리기
-        //             cv::circle(image, center, radius, cv::Scalar(0, 255, 0), 4);
-        //             cv::rectangle(image, cv::Point(center.x - 5, center.y - 5), cv::Point(center.x + 5, center.y + 5), cv::Scalar(0, 128, 255), -1);
-    //     }
-    // }
+        // CString strCoords;
+        // strCoords.Format(_T("(%d, %d)"), x, y);
+        // pDC->TextOutW(x + 15, y, strCoords);
 
-//     // 결과 이미지 저장
-//     cv::imwrite("output_image.png", image);
-
-//     // 결과 이미지 표시
-//     cv::imshow("output", image);
-//     cv::waitKey(0);
-
-//     return 0;
-// }
+        // // DC를 해제합니다.
+        // m_imageCtrl.ReleaseDC(pDC);
     }
 }
 
@@ -318,10 +323,14 @@ void CImageDialogAppDlg::OnSysCommand(UINT nID, LPARAM lParam)
 void CImageDialogAppDlg::OnPaint()
 {
     CPaintDC dc(this);
-    if (m_Bitmap != nullptr)
+    if (m_bitmap != nullptr)
     {
         Graphics graphics(dc);
-        graphics.DrawImage(m_Bitmap, 0, 0);
+        graphics.DrawImage(m_bitmap, 0, 0);
+    }
+    else
+    {
+        CDialogEx::OnPaint();
     }
 
     CDialogEx::OnPaint();
