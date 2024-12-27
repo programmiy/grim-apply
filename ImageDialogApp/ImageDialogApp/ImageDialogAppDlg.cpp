@@ -14,6 +14,37 @@
 #include <gdiplus.h>
 using namespace Gdiplus; 
 
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+    UINT num = 0;          // number of image encoders
+    UINT size = 0;         // size of the image encoder array in bytes
+
+    Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+    Gdiplus::GetImageEncodersSize(&num, &size);
+    if(size == 0)
+        return -1;  // Failure
+
+    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+    if(pImageCodecInfo == NULL)
+        return -1;  // Failure
+
+    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
+
+    for(UINT j = 0; j < num; ++j)
+    {
+        if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+        {
+            *pClsid = pImageCodecInfo[j].Clsid;
+            free(pImageCodecInfo);
+            return j;  // Success
+        }    
+    }
+
+    free(pImageCodecInfo);
+    return -1;  // Failure
+}
+
 // TODO: 4일간 나를 괴롭혔던 오류 해결 완료
 // 디버그 >> release로 변경
 
@@ -166,11 +197,14 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
     // 핵심은 원의 출력, 저장, 초기화, 새 원 출력의 구조
     // 스레드 작업이 필수
 
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 
 
     // 별도의 스레드에서 작업을 수행합니다.
-    std::thread([this]() {
+    std::thread([this, gdiplusToken]() {
         try {
             CString strX1, strY1, strX2, strY2;
             m_editX1.GetWindowText(strX1);
@@ -198,14 +232,19 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 Gdiplus::Graphics graphics(&bitmap);
                 graphics.Clear(Color(0, 0, 0, 0));
 
-                SolidBrush brush(Color(255, 255, 255, 255));
+                // 영역 제한, 배경이 윈도우 전체를 차지하는 문제 해결
+                Gdiplus::Rect clipRect(0, 0, crect.Width() - 244, crect.Height());
+                graphics.SetClip(clipRect);
+                
 
                 int width = bitmap.GetWidth();
                 int height = bitmap.GetHeight();
                 int proportional_radius = min(width, height) / 20;
                 int random_radius = (proportional_radius + 10) / 2; // 예제에서 radius를 10으로 가정
 
-                graphics.FillEllipse(&Gdiplus::SolidBrush(Gdiplus::Color(0, 0, 0)), x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
+                
+                SolidBrush brush(Color(255, 255, 255, 255));
+                graphics.FillEllipse(&brush, x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
 
                 
                 // 디렉토리 생성
@@ -222,7 +261,10 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 CTime datetime = CTime::GetCurrentTime();
                 CString datetimeStr = datetime.Format(_T("%Y%m%d%H%M%S"));
                 filepath.Format(_T("image/frame_%s.jpg"), datetimeStr.GetString());
-                bitmap.Save(filepath, NULL);
+                CLSID clsid;
+                GetEncoderClsid(L"image/jpeg", &clsid);
+                bitmap.Save(filepath, &clsid);
+
 
                 // 그린 이미지를 다이얼로그에 표시
                 if (m_bitmap != nullptr)
@@ -231,7 +273,8 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 }
                 m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
 
-                PostMessage(WM_PAINT);
+                Invalidate();
+                // PostMessage(WM_USER_UPDATE_BITMAP, reinterpret_cast<WPARAM>(bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB)), 0);  
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
             }
@@ -241,7 +284,16 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
         }
     }).detach();
 }
-
+LRESULT CImageDialogAppDlg::OnUpdateBitmap(WPARAM wParam, LPARAM lParam)
+{
+    if (m_bitmap != nullptr)
+    {
+        delete m_bitmap; // 기존 Bitmap 해제
+    }
+    m_bitmap = reinterpret_cast<Gdiplus::Bitmap*>(wParam);
+    Invalidate();
+    return 0;
+}
 void CImageDialogAppDlg::OnBnClickedButtonOpen()
 {
     CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||")); // TODO: all files 선택지 제거
@@ -310,8 +362,19 @@ void CImageDialogAppDlg::OnPaint()
     CPaintDC dc(this);
     if (m_bitmap != nullptr)
     {
-        Graphics graphics(dc);
-        graphics.DrawImage(m_bitmap, 0, 0);
+        CRect crect;
+        GetClientRect(&crect);
+        CDC memDC;
+        memDC.CreateCompatibleDC(&dc);
+        CBitmap bmp;
+        bmp.CreateCompatibleBitmap(&dc, crect.Width(), crect.Height());
+        CBitmap* pOldBmp = memDC.SelectObject(&bmp);
+
+        Gdiplus::Graphics graphics(memDC.m_hDC);
+        graphics.DrawImage(m_bitmap, 0, 0, m_bitmap->GetWidth(), m_bitmap->GetHeight());
+
+        dc.BitBlt(0, 0, crect.Width(), crect.Height(), &memDC, 0, 0, SRCCOPY);
+        memDC.SelectObject(pOldBmp);
     }
     else
     {

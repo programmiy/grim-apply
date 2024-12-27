@@ -1,4 +1,5 @@
-﻿
+﻿#define WM_USER_UPDATE_BITMAP (WM_USER + 1)
+
 // ImageDialogAppDlg.h: 헤더 파일
 //
 
@@ -15,7 +16,7 @@ public:
 	afx_msg void OnBnClickedButtonAction();
 	afx_msg void OnBnClickedButtonOpen();
 	virtual BOOL OnInitDialog();
-	
+	afx_msg LRESULT OnUpdateBitmap(WPARAM wParam, LPARAM lParam);
 
 
     virtual ~CImageDialogAppDlg();                  // 소멸자 추가
