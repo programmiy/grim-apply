@@ -14,36 +14,8 @@
 #include <gdiplus.h>
 using namespace Gdiplus; 
 
-int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
-{
-    UINT num = 0;          // number of image encoders
-    UINT size = 0;         // size of the image encoder array in bytes
+// TODO: open 마무리후 필요한 코드만 남기고 가독성 향상을 위해 규칙을 세워 코드간 간격 확보, 주석 추가 예정
 
-    Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
-
-    Gdiplus::GetImageEncodersSize(&num, &size);
-    if(size == 0)
-        return -1;  // Failure
-
-    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
-    if(pImageCodecInfo == NULL)
-        return -1;  // Failure
-
-    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
-
-    for(UINT j = 0; j < num; ++j)
-    {
-        if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
-        {
-            *pClsid = pImageCodecInfo[j].Clsid;
-            free(pImageCodecInfo);
-            return j;  // Success
-        }    
-    }
-
-    free(pImageCodecInfo);
-    return -1;  // Failure
-}
 
 // TODO: 4일간 나를 괴롭혔던 오류 해결 완료
 // 디버그 >> release로 변경
@@ -138,9 +110,6 @@ CImageDialogAppDlg::~CImageDialogAppDlg()
         m_bitmap = nullptr;
     }
     CDialogEx::OnDestroy();
-
-
-
 }
 
 
@@ -149,7 +118,7 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
 {
     try
     {
-        // TODO: 파이썬으로 구현한 알고리즘 토대로 사용하기 위해 전부 삭제, 최우선 개발 사항
+        // 작업완료
             
         CString strX1, strY1;
         m_editX1.GetWindowTextW(strX1);
@@ -195,9 +164,7 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
 
 void CImageDialogAppDlg::OnBnClickedButtonAction()
 {
-    // TODO: 파이썬 알고리즘, rect 방식 응용해서 수정할 계획
-    // 핵심은 원의 출력, 저장, 초기화, 새 원 출력의 구조
-    // 스레드 작업이 필수
+// 작업완료
 
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -345,6 +312,36 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         // // DC를 해제합니다.
         // m_imageCtrl.ReleaseDC(pDC);
     }
+}
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+    UINT num = 0;          // number of image encoders
+    UINT size = 0;         // size of the image encoder array in bytes
+
+    Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+    Gdiplus::GetImageEncodersSize(&num, &size);
+    if(size == 0)
+        return -1;  // Failure
+
+    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+    if(pImageCodecInfo == NULL)
+        return -1;  // Failure
+
+    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
+
+    for(UINT j = 0; j < num; ++j)
+    {
+        if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+        {
+            *pClsid = pImageCodecInfo[j].Clsid;
+            free(pImageCodecInfo);
+            return j;  // Success
+        }    
+    }
+
+    free(pImageCodecInfo);
+    return -1;  // Failure
 }
 
 void CImageDialogAppDlg::OnSysCommand(UINT nID, LPARAM lParam)
