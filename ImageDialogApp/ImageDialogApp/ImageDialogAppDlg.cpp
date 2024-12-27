@@ -173,12 +173,14 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
         graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
 
+
         // 그린 이미지를 다이얼로그에 표시
         if (m_bitmap != nullptr)
         {
             delete m_bitmap; // 기존 Bitmap 해제
         }
         m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
+
 
         Invalidate();  // 다이얼로그를 다시 그리도록 요청
     }
@@ -230,11 +232,10 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 GetClientRect(&crect);
                 Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
                 Gdiplus::Graphics graphics(&bitmap);
-                graphics.Clear(Color(0, 0, 0, 0));
+                graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
 
-                // 영역 제한, 배경이 윈도우 전체를 차지하는 문제 해결
-                Gdiplus::Rect clipRect(0, 0, crect.Width() - 244, crect.Height());
-                graphics.SetClip(clipRect);
+
+
                 
 
                 int width = bitmap.GetWidth();
@@ -242,8 +243,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 int proportional_radius = min(width, height) / 20;
                 int random_radius = (proportional_radius + 10) / 2; // 예제에서 radius를 10으로 가정
 
-                
-                SolidBrush brush(Color(255, 255, 255, 255));
+                SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
                 graphics.FillEllipse(&brush, x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
 
                 
@@ -273,6 +273,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 }
                 m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
 
+
                 Invalidate();
                 // PostMessage(WM_USER_UPDATE_BITMAP, reinterpret_cast<WPARAM>(bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB)), 0);  
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -291,6 +292,8 @@ LRESULT CImageDialogAppDlg::OnUpdateBitmap(WPARAM wParam, LPARAM lParam)
         delete m_bitmap; // 기존 Bitmap 해제
     }
     m_bitmap = reinterpret_cast<Gdiplus::Bitmap*>(wParam);
+
+
     Invalidate();
     return 0;
 }
@@ -367,14 +370,20 @@ void CImageDialogAppDlg::OnPaint()
         CDC memDC;
         memDC.CreateCompatibleDC(&dc);
         CBitmap bmp;
-        bmp.CreateCompatibleBitmap(&dc, crect.Width(), crect.Height());
+        bmp.CreateCompatibleBitmap(&dc, crect.Width()-244, crect.Height());
         CBitmap* pOldBmp = memDC.SelectObject(&bmp);
 
         Gdiplus::Graphics graphics(memDC.m_hDC);
         graphics.DrawImage(m_bitmap, 0, 0, m_bitmap->GetWidth(), m_bitmap->GetHeight());
 
-        dc.BitBlt(0, 0, crect.Width(), crect.Height(), &memDC, 0, 0, SRCCOPY);
+
+        dc.BitBlt(0, 0, crect.Width()-224, crect.Height(), &memDC, 0, 0, SRCCOPY);
         memDC.SelectObject(pOldBmp);
+        // BUG:  캔버스 영향을 주는 crect.Width()에 일괄적으로 244를 빼주게 함
+        // 아래의 코드를 전 함수에 적용해서 발견
+        // CString msg;
+        // msg.Format(_T("Width: %d"), crect.Width());
+        // AfxMessageBox(msg);
     }
     else
     {
