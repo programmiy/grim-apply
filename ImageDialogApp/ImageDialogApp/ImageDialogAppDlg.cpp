@@ -57,23 +57,7 @@ BOOL CImageDialogAppDlg::OnInitDialog()
     GdiplusStartupInput gdiplusStartupInput;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-    CRect crect;
-    GetClientRect(&crect);
-    BITMAPINFO bmi;
-    ZeroMemory(&bmi, sizeof(BITMAPINFO));
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = crect.Width() - 244;
-    bmi.bmiHeader.biHeight = crect.Height();
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 24;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    m_bitmap = Gdiplus::Bitmap::FromBITMAPINFO(&bmi, NULL);
-    if (m_bitmap->GetLastStatus() != Gdiplus::Ok) {
-        AfxMessageBox(_T("Failed to create Gdiplus::Bitmap"));
-        delete m_bitmap;
-        m_bitmap = nullptr;
-        return FALSE;
-    }
+
 
     // 시스템 메뉴에 "정보..." 메뉴 항목을 추가합니다.
     CMenu* pSysMenu = GetSystemMenu(FALSE);
@@ -144,16 +128,17 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
 
         CRect crect;
         GetClientRect(&crect); 
-
+        int width = crect.Width()-244;
+        int height = crect.Height();
         // GDI+ Bitmap 생성
-        Gdiplus::Bitmap bitmap(crect.Width() - 244, crect.Height(), PixelFormat24bppRGB);
+        Gdiplus::Bitmap bitmap(width, height, PixelFormat24bppRGB);
         Gdiplus::Graphics graphics(&bitmap);
         graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
 
         Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
 
-        int width = bitmap.GetWidth();
-        int proportional_radius = min(width, crect.Height()) / 20;  // 이미지 크기의 1/20로 설정
+        width = bitmap.GetWidth();
+        int proportional_radius = min(width, height) / 20;  // 이미지 크기의 1/20로 설정
         int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
         graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
 
