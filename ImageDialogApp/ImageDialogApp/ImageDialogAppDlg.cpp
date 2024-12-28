@@ -306,59 +306,40 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
     {
         CString filePath = dlg.GetPathName();
 
-        // OpenCV를 사용하여 이미지 처리
+        // CString을 std::string으로 변환
         CT2CA pszConvertedAnsiString(filePath);
-        std::string filePathStr(pszConvertedAnsiString);
-        cv::Mat img = cv::imread(CT2A(filePath));
-        if (image.empty())
+        std::string strStd(pszConvertedAnsiString);
+
+        // OpenCV를 사용하여 이미지 불러오기
+        cv::Mat img = cv::imread(strStd);
+        if (img.empty())
         {
             AfxMessageBox(_T("이미지를 읽을 수 없습니다."));
             return;
         }
 
-        // 그레이스케일로 변환
-        cv::Mat gray;
-        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+        // 이미지를 GDI+ Bitmap으로 변환
+        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(img.cols, img.rows, img.step, PixelFormat24bppRGB, img.data);
 
-        // DC(Device Context)를 가져옵니다.
-        CDC* pDC = m_imageCtrl.GetDC();
-        CRect rect;
-        m_imageCtrl.GetClientRect(&rect);
+        // 다이얼로그에 이미지 출력
+        CClientDC dc(this);
+        Gdiplus::Graphics graphics(dc);
+        graphics.DrawImage(bitmap, 0, 0, img.cols, img.rows);
 
-        // 화면을 지웁니다.
-        pDC->FillSolidRect(&rect, RGB(240, 240, 240)); // 바탕색 설정
+        // 원의 중심 좌표에 X 모양 그리기
+        int x = img.cols / 2;
+        int y = img.rows / 2;
+        Gdiplus::Pen pen(Gdiplus::Color(255, 0, 0), 2);
+        graphics.DrawLine(&pen, x - 10, y, x + 10, y);
+        graphics.DrawLine(&pen, x, y - 10, x, y + 10);
 
-        // 이미지 표시
-        // OpenCV 이미지를 MFC DC에 그리기 위해 변환
-        cv::Mat temp;
-        cv::cvtColor(image, temp, cv::COLOR_BGR2BGRA);
-        CImage cimage;
-        cimage.Create(temp.cols, temp.rows, 32);
-        cv::Vec4b bgra = cv::Vec4b(255, 0, 0, 255);
-        for (int y = 0; y < temp.rows; ++y)
-        {
-            for (int x = 0; x < temp.cols; ++x)
-            {
-                cv::Vec4b& bgra = temp.at<cv::Vec4b>(y, x);
-                cimage.SetPixelRGB(x, y, bgra[2], bgra[1], bgra[0]);
-            }
-        }
-        cimage.Draw(pDC->m_hDC, rect);
+        // 좌표값 표시
+        CString str;
+        str.Format(_T("(%d, %d)"), x, y);
+        dc.TextOutW(x + 15, y, str);
 
-        // 원 중심의 X 표시 및 좌표 출력
-        int x = m_x;
-        int y = m_y;
-        pDC->MoveTo(x - 10, y);
-        pDC->LineTo(x + 10, y);
-        pDC->MoveTo(x, y - 10);
-        pDC->LineTo(x, y + 10);
-
-        CString strCoords;
-        strCoords.Format(_T("(%d, %d)"), x, y);
-        pDC->TextOut(x + 15, y, strCoords);
-
-        // DC를 해제합니다.
-        m_imageCtrl.ReleaseDC(pDC);
+        // 메모리 해제
+        delete bitmap;
     }
 }
 
