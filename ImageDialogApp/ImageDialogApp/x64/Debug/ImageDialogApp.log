@@ -1,0 +1,150 @@
+﻿  pch.cpp
+  ImageDialogApp.cpp
+  ImageDialogAppDlg.cpp
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(17,17): error C2871: 'cv': 같은 이름을 가진 네임스페이스가 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(234,17): error C3861: 'GetEncoderClsid': 식별자를 찾을 수 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,9): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+  코드를 생성하고 있습니다...
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,13): error C2065: 'Mat': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,17): error C2146: 구문 오류: ';'이(가) 'image' 식별자 앞에 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,17): error C2065: 'image': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,25): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,49): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,53): error C2065: 'IMREAD_COLOR': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(279,29): error C3861: 'imread': 식별자를 찾을 수 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(280,13): error C2065: 'image': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(287,9): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(287,13): error C2065: 'Mat': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(287,17): error C2146: 구문 오류: ';'이(가) 'gray' 식별자 앞에 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(287,17): error C2065: 'gray': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(288,9): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(288,22): error C2065: 'image': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(288,29): error C2065: 'gray': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(288,35): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(288,39): error C2065: 'COLOR_BGR2GRAY': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(288,13): error C3861: 'cvtColor': 식별자를 찾을 수 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(300,9): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(300,13): error C2065: 'Mat': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(300,17): error C2146: 구문 오류: ';'이(가) 'temp' 식별자 앞에 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(300,17): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(301,9): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(301,22): error C2065: 'image': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(301,29): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(301,35): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(301,39): error C2065: 'COLOR_BGR2BGRA': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(301,13): error C3861: 'cvtColor': 식별자를 찾을 수 없습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(303,23): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(303,34): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(303,16): error C2660: 'ATL::CImage::Create': 함수는 2개의 인수를 사용하지 않습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\atlmfc\include\atlimage.h(833,21):
+      'ATL::CImage::Create' 선언을 참조하십시오.
+      C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(303,16):
+      인수 목록 '()'을(를) 일치시키는 동안
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(304,29): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(306,33): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(308,17): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(308,21): error C2065: 'Vec4b': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(308,28): error C2065: 'bgra': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(308,35): error C2065: 'temp': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(308,43): error C2653: 'cv': 클래스 또는 네임스페이스 이름이 아닙니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(308,47): error C2065: 'Vec4b': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(309,42): error C2065: 'bgra': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(309,51): error C2065: 'bgra': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(309,60): error C2065: 'bgra': 선언되지 않은 식별자입니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(309,24): error C2660: 'ATL::CImage::SetPixelRGB': 함수는 2개의 인수를 사용하지 않습니다.
+  (소스 파일 '/ImageDialogAppDlg.cpp'을(를) 컴파일하는 중)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\atlmfc\include\atlimage.h(1850,21):
+      'ATL::CImage::SetPixelRGB' 선언을 참조하십시오.
+      C:\Users\parkp\Desktop\job\grim\grim-apply\ImageDialogApp\ImageDialogApp\ImageDialogAppDlg.cpp(309,24):
+      인수 목록 '(int, int)'을(를) 일치시키는 동안
+  
