@@ -311,32 +311,62 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         std::string strStd(pszConvertedAnsiString);
 
         // OpenCV를 사용하여 이미지 불러오기
-        cv::Mat img = cv::imread(strStd);
-        if (img.empty())
+        cv::Mat src = cv::imread(strStd);
+        if (src.empty())
         {
             AfxMessageBox(_T("이미지를 읽을 수 없습니다."));
             return;
         }
+        // 이미지를 그레이스케일로 변환
+        cv::Mat src_gray;
+        cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
 
-        // 이미지를 GDI+ Bitmap으로 변환
-        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(img.cols, img.rows, img.step, PixelFormat24bppRGB, img.data);
+        // 블러링 처리
+        cv::Mat blurred;
+        cv::blur(src_gray, blurred, cv::Size(7, 7));
+
+        // 원 검출
+        std::vector<cv::Vec3f> circles;
+        cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1, 30, 150, 60);
+
+        // GDI+ Bitmap으로 변환
+        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols, src.rows, src.step, PixelFormat24bppRGB, src.data);
+
+        // 다이얼로그의 클라이언트 영역 크기 가져오기
+        CRect clientRect;
+        GetClientRect(&clientRect);
+
+        // 이미지의 중앙 좌표 계산
+        int imgX = (clientRect.Width() -244 - src.cols) / 2;
+        int imgY = (clientRect.Height() - src.rows) / 2;
 
         // 다이얼로그에 이미지 출력
         CClientDC dc(this);
         Gdiplus::Graphics graphics(dc);
-        graphics.DrawImage(bitmap, 0, 0, img.cols, img.rows);
+        graphics.Clear(Gdiplus::Color(0, 0, 0, 0)); // 기존 이미지 지우기
+        graphics.DrawImage(bitmap, imgX, imgY, src.cols - 244, src.rows);
 
         // 원의 중심 좌표에 X 모양 그리기
-        int x = img.cols / 2;
-        int y = img.rows / 2;
         Gdiplus::Pen pen(Gdiplus::Color(255, 0, 0), 2);
-        graphics.DrawLine(&pen, x - 10, y - 10, x + 10, y + 10); // 대각선 1
-        graphics.DrawLine(&pen, x - 10, y + 10, x + 10, y - 10); // 대각선 2
+        for (const auto& c : circles)
+        {
+            int x = imgX + cvRound(c[0]);
+            int y = imgY + cvRound(c[1]);
+            int radius = cvRound(c[2]);
 
-        // 좌표값 표시
-        CString str;
-        str.Format(_T("(%d, %d)"), x, y);
-        dc.TextOutW(x + 15, y, str);
+            // X 모양 그리기
+            graphics.DrawLine(&pen, x - 10, y - 10, x + 10, y + 10); // 대각선 1
+            graphics.DrawLine(&pen, x - 10, y + 10, x + 10, y - 10); // 대각선 2
+
+            // 원 그리기
+            Gdiplus::Pen pen(Gdiplus::Color(0, 0, 0), 2);
+            graphics.DrawEllipse(&pen, x - radius, y - radius, radius * 2, radius * 2);
+
+            // 좌표값 표시
+            CString str;
+            str.Format(_T("(%d, %d)"), x, y);
+            dc.TextOutW(x + 15, y, str);
+        }
 
         // 메모리 해제
         delete bitmap;
