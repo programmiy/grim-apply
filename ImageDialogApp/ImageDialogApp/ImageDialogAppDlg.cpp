@@ -12,7 +12,9 @@
 #include <errno.h>
 #include <ctime>
 #include <gdiplus.h>
-using namespace Gdiplus; 
+using namespace Gdiplus;
+#include <opencv2/opencv.hpp>
+using namespace cv;
 
 // TODO: open 마무리후 필요한 코드만 남기고 가독성 향상을 위해 규칙을 세워 코드간 간격 확보, 주석 추가 예정
 
@@ -121,8 +123,8 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         // 작업완료
             
         CString strX1, strY1;
-        m_editX1.GetWindowTextW(strX1);
-        m_editY1.GetWindowTextW(strY1);
+        m_editX1.GetWindowText(strX1);
+        m_editY1.GetWindowText(strY1);
         int x1 = _ttoi(strX1);
         int y1 = _ttoi(strY1);
 
@@ -138,8 +140,8 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
 
         width = bitmap.GetWidth();
-        int proportional_radius = min(width, height) / 20;  // 이미지 크기의 1/20로 설정
-        int random_radius = (m_radius + proportional_radius) / 2;  // 두 값의 평균
+        
+        int random_radius = m_radius;
         graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
 
 
@@ -161,6 +163,40 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
 
 
 }
+
+
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+    UINT num = 0;          // number of image encoders
+    UINT size = 0;         // size of the image encoder array in bytes
+
+    Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+    Gdiplus::GetImageEncodersSize(&num, &size);
+    if(size == 0)
+        return -1;  // Failure
+
+    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+    if(pImageCodecInfo == NULL)
+        return -1;  // Failure
+
+    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
+
+    for(UINT j = 0; j < num; ++j)
+    {
+        if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+        {
+            *pClsid = pImageCodecInfo[j].Clsid;
+            free(pImageCodecInfo);
+            return j;  // Success
+        }    
+    }
+
+    free(pImageCodecInfo);
+    return -1;  // Failure
+}
+
+
 
 void CImageDialogAppDlg::OnBnClickedButtonAction()
 {
@@ -207,8 +243,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
 
                 int width = bitmap.GetWidth();
                 int height = bitmap.GetHeight();
-                int proportional_radius = min(width, height) / 20;
-                int random_radius = (proportional_radius + 10) / 2; // 예제에서 radius를 10으로 가정
+                int random_radius = m_radius;
 
                 SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
                 graphics.FillEllipse(&brush, x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
@@ -230,7 +265,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 filepath.Format(_T("image/frame_%s.jpg"), datetimeStr.GetString());
                 CLSID clsid;
                 GetEncoderClsid(L"image/jpeg", &clsid);
-                bitmap.Save(filepath, &clsid);
+                bitmap.Save(filepath.GetString(), &clsid);
 
 
                 // 그린 이미지를 다이얼로그에 표시
@@ -268,81 +303,66 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
 {
     CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||")); // TODO: all files 선택지 제거
     if (dlg.DoModal() == IDOK)
-    {}
     {
-    // TODO: 좌표값 출력은 파일명 의존이 아니라 아래코드 참조해서(인터넷 검색한 코드) opencv로 검출 예정 
-        // #include <opencv2/opencv.hpp>
-        // #include <iostream>
+        CString filePath = dlg.GetPathName();
 
-        // int main()
-        // {
-        //     // 이미지 읽기
-        //     cv::Mat image = cv::imread("path_to_your_image.png", cv::IMREAD_COLOR);
-        //     if (image.empty())
-        //     {
-        //         std::cerr << "이미지를 읽을 수 없습니다." << std::endl;
-        //         return -1;
-        //     }
-
-        //     // 그레이스케일로 변환
-        //     cv::Mat gray;
-        //     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-
-        // // DC(Device Context)를 가져옵니다.
-        // CDC* pDC = m_imageCtrl.GetDC();
-
-        // // 화면을 지웁니다.
-        // pDC->FillSolidRect(&rect, RGB(240, 240, 240)); // 바탕색 설정
-
-        // // 이미지 표시
-        // image.Draw(pDC->m_hDC, rect);
-
-        // // 원 중심의 X 표시 및 좌표 출력
-        // int x = m_x;
-        // int y = m_y;
-        // pDC->MoveTo(x - 10, y);
-        // pDC->LineTo(x + 10, y);
-        // pDC->MoveTo(x, y - 10);
-        // pDC->LineTo(x, y + 10);
-
-        // CString strCoords;
-        // strCoords.Format(_T("(%d, %d)"), x, y);
-        // pDC->TextOutW(x + 15, y, strCoords);
-
-        // // DC를 해제합니다.
-        // m_imageCtrl.ReleaseDC(pDC);
-    }
-}
-int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
-{
-    UINT num = 0;          // number of image encoders
-    UINT size = 0;         // size of the image encoder array in bytes
-
-    Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
-
-    Gdiplus::GetImageEncodersSize(&num, &size);
-    if(size == 0)
-        return -1;  // Failure
-
-    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
-    if(pImageCodecInfo == NULL)
-        return -1;  // Failure
-
-    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
-
-    for(UINT j = 0; j < num; ++j)
-    {
-        if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+        // OpenCV를 사용하여 이미지 처리
+        CT2CA pszConvertedAnsiString(filePath);
+        std::string filePathStr(pszConvertedAnsiString);
+        cv::Mat img = cv::imread(CT2A(filePath));
+        if (image.empty())
         {
-            *pClsid = pImageCodecInfo[j].Clsid;
-            free(pImageCodecInfo);
-            return j;  // Success
-        }    
-    }
+            AfxMessageBox(_T("이미지를 읽을 수 없습니다."));
+            return;
+        }
 
-    free(pImageCodecInfo);
-    return -1;  // Failure
+        // 그레이스케일로 변환
+        cv::Mat gray;
+        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+
+        // DC(Device Context)를 가져옵니다.
+        CDC* pDC = m_imageCtrl.GetDC();
+        CRect rect;
+        m_imageCtrl.GetClientRect(&rect);
+
+        // 화면을 지웁니다.
+        pDC->FillSolidRect(&rect, RGB(240, 240, 240)); // 바탕색 설정
+
+        // 이미지 표시
+        // OpenCV 이미지를 MFC DC에 그리기 위해 변환
+        cv::Mat temp;
+        cv::cvtColor(image, temp, cv::COLOR_BGR2BGRA);
+        CImage cimage;
+        cimage.Create(temp.cols, temp.rows, 32);
+        cv::Vec4b bgra = cv::Vec4b(255, 0, 0, 255);
+        for (int y = 0; y < temp.rows; ++y)
+        {
+            for (int x = 0; x < temp.cols; ++x)
+            {
+                cv::Vec4b& bgra = temp.at<cv::Vec4b>(y, x);
+                cimage.SetPixelRGB(x, y, bgra[2], bgra[1], bgra[0]);
+            }
+        }
+        cimage.Draw(pDC->m_hDC, rect);
+
+        // 원 중심의 X 표시 및 좌표 출력
+        int x = m_x;
+        int y = m_y;
+        pDC->MoveTo(x - 10, y);
+        pDC->LineTo(x + 10, y);
+        pDC->MoveTo(x, y - 10);
+        pDC->LineTo(x, y + 10);
+
+        CString strCoords;
+        strCoords.Format(_T("(%d, %d)"), x, y);
+        pDC->TextOut(x + 15, y, strCoords);
+
+        // DC를 해제합니다.
+        m_imageCtrl.ReleaseDC(pDC);
+    }
 }
+
+
 
 void CImageDialogAppDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
