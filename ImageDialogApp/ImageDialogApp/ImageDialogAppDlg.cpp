@@ -16,16 +16,12 @@ using namespace Gdiplus;
 #include <opencv2/opencv.hpp>
 using namespace cv;
 
-// TODO: open 마무리후 필요한 코드만 남기고 가독성 향상을 위해 규칙을 세워 코드간 간격 확보, 주석 추가 예정
 
-
-// TODO: 4일간 나를 괴롭혔던 오류 해결 완료
-// 디버그 >> release로 변경
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-// TODO: 불필요한 주석 제거
+
 BEGIN_MESSAGE_MAP(CImageDialogAppDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_DRAW, &CImageDialogAppDlg::OnBnClickedButtonDraw)
     ON_BN_CLICKED(IDC_BUTTON_ACTION, &CImageDialogAppDlg::OnBnClickedButtonAction)
@@ -65,7 +61,6 @@ BOOL CImageDialogAppDlg::OnInitDialog()
 
 
 
-    // 시스템 메뉴에 "정보..." 메뉴 항목을 추가합니다.
     CMenu* pSysMenu = GetSystemMenu(FALSE);
     if (pSysMenu != nullptr)
     {
@@ -80,8 +75,8 @@ BOOL CImageDialogAppDlg::OnInitDialog()
         }
     }
     m_radius = (rand() % 90) + 20;
-    SetIcon(m_hIcon, TRUE);         // 큰 아이콘을 설정합니다.
-    SetIcon(m_hIcon, FALSE);        // 작은 아이콘을 설정합니다.
+    SetIcon(m_hIcon, TRUE);         
+    SetIcon(m_hIcon, FALSE);        
     
 
     // 컨트롤 초기화
@@ -102,14 +97,14 @@ BOOL CImageDialogAppDlg::OnInitDialog()
     SetDlgItemText(IDC_STATIC_Y2_LABEL, _T("Y2:"));
 
 
-    return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
+    return TRUE;  
 }
 
 CImageDialogAppDlg::~CImageDialogAppDlg()
 {
     if (m_bitmap != nullptr)
     {
-        delete m_bitmap; // 메모리 해제
+        delete m_bitmap; 
         m_bitmap = nullptr;
     }
     CDialogEx::OnDestroy();
@@ -121,7 +116,7 @@ void CImageDialogAppDlg::OnEnChangeEditX1()
     if (!m_bFirstWarningShown)
     {
         AfxMessageBox(_T("open cv의 문제로 22이하의 값 입력시 중심좌표를 발견하지 못할 수 있습니다.(중심좌표가 윈도우 밖에 생깁니다)"));
-        m_bFirstWarningShown = true; // 경고 메시지를 한 번만 표시하도록 플래그 설정
+        m_bFirstWarningShown = true; 
     }
 }
 
@@ -130,7 +125,7 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
     
     try
     {
-        // 작업완료
+        
             
         CString strX1, strY1;
         m_editX1.GetWindowText(strX1);
@@ -142,7 +137,7 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         GetClientRect(&crect); 
         int width = crect.Width()-244;
         int height = crect.Height();
-        // GDI+ Bitmap 생성
+        
         Gdiplus::Bitmap bitmap(width, height, PixelFormat24bppRGB);
         Gdiplus::Graphics graphics(&bitmap);
         graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
@@ -155,15 +150,15 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
 
 
-        // 그린 이미지를 다이얼로그에 표시
+        
         if (m_bitmap != nullptr)
         {
-            delete m_bitmap; // 기존 Bitmap 해제
+            delete m_bitmap; 
         }
         m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
 
 
-        Invalidate();  // 다이얼로그를 다시 그리도록 요청
+        Invalidate();  
     }
     catch(const std::exception& )
     {
@@ -177,8 +172,8 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
 
 int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {
-    UINT num = 0;          // number of image encoders
-    UINT size = 0;         // size of the image encoder array in bytes
+    UINT num = 0;         
+    UINT size = 0;         
 
     Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
@@ -210,7 +205,6 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 
 void CImageDialogAppDlg::OnBnClickedButtonAction()
 {
-// 작업완료
 
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -233,7 +227,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
             int y2 = _ttoi(strY2);
 
             // 이동할 스텝 설정
-            int stepCount = 100;  // 100 스텝으로 나눈다고 가정
+            int stepCount = 100; 
             int dx = x2 - x1;
             int dy = y2 - y1;
 
@@ -242,9 +236,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
                 double t = stepSize * i;  // 현재 비율
                 int x= static_cast<int>(x1 + t * dx);
                 int y= static_cast<int>(y1 + t * dy);
-                // CString debugMessage;
-                // debugMessage.Format(_T("Coordinates: %d, %d\n"), x, y);
-                // AfxMessageBox(debugMessage); // 좌표를 메시지 박스로 표시
+ 
                 CRect crect;
                 GetClientRect(&crect);
                 Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
@@ -291,7 +283,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
 
 
                 Invalidate();
-                // PostMessage(WM_USER_UPDATE_BITMAP, reinterpret_cast<WPARAM>(bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB)), 0);  
+               
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
             }
@@ -315,7 +307,7 @@ LRESULT CImageDialogAppDlg::OnUpdateBitmap(WPARAM wParam, LPARAM lParam)
 }
 void CImageDialogAppDlg::OnBnClickedButtonOpen()
 {
-    CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||")); // TODO: all files 선택지 제거
+    CFileDialog dlg(TRUE, _T("Image Files"), NULL, OFN_FILEMUSTEXIST, _T("Images|*.bmp;*.jpg;*.jpeg|All Files|*.*||")); 
     if (dlg.DoModal() == IDOK)
     {
         CString filePath = dlg.GetPathName();
@@ -361,10 +353,8 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         graphics.FillRectangle(&blackBrush, 0, 0, clientRect.Width() - 244, clientRect.Height());
         graphics.DrawImage(bitmap, imgX, imgY, src.cols - 244, src.rows);
 
-        // // 인수들을 숫자 형태로 메시지 박스에 띄우기
-        // CString message;
-        // message.Format(_T("imgX: %d, imgY: %d, width: %d, height: %d"), imgX, imgY, src.cols - 244, src.rows);
-        // AfxMessageBox(message);
+
+
         // 원의 중심 좌표에 X 모양 그리기
         Gdiplus::Pen rpen(Gdiplus::Color(255, 0, 0), 2);
         Gdiplus::SolidBrush whiteBrush(Gdiplus::Color(255, 255, 255));
@@ -382,10 +372,7 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
                 y = clientRect.Height() - radius - 50;
             }
             
-            //     // 디버깅을 위해 원의 좌표와 반지름을 출력
-            // CString debugMessage;
-            // debugMessage.Format(_T("Circle %d: x = %d, y = %d, radius = %d"), c, x, y, radius);
-            // AfxMessageBox(debugMessage);
+
 
             
             graphics.FillEllipse(&whiteBrush, x - radius, y - radius, radius * 2, radius * 2);
@@ -441,11 +428,7 @@ void CImageDialogAppDlg::OnPaint()
 
         dc.BitBlt(0, 0, crect.Width()-224, crect.Height(), &memDC, 0, 0, SRCCOPY);
         memDC.SelectObject(pOldBmp);
-        // BUG:  캔버스 영향을 주는 crect.Width()에 일괄적으로 244를 빼주게 함
-        // 아래의 코드를 전 함수에 적용해서 발견
-        // CString msg;
-        // msg.Format(_T("Width: %d"), crect.Width());
-        // AfxMessageBox(msg);
+
     }
     else
     {
