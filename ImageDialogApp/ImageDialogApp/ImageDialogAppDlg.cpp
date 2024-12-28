@@ -330,8 +330,8 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         int x = img.cols / 2;
         int y = img.rows / 2;
         Gdiplus::Pen pen(Gdiplus::Color(255, 0, 0), 2);
-        graphics.DrawLine(&pen, x - 10, y, x + 10, y);
-        graphics.DrawLine(&pen, x, y - 10, x, y + 10);
+        graphics.DrawLine(&pen, x - 10, y - 10, x + 10, y + 10); // 대각선 1
+        graphics.DrawLine(&pen, x - 10, y + 10, x + 10, y - 10); // 대각선 2
 
         // 좌표값 표시
         CString str;
