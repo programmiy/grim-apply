@@ -225,12 +225,16 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
             double dx = (x2 - x1) / 50.0;
             double dy = (y2 - y1) / 50.0;
             std::vector<std::pair<int, int>> steps;
-            for (int i = 0; i <= 50; ++i) {
+            steps.push_back({ x1, y1 }); // 첫 번째 스텝 추가
+            for (int i = 1; i <= 50; ++i) {
                 steps.push_back({ static_cast<int>(x1 + i * dx), static_cast<int>(y1 + i * dy) });
-            }           
+            }         
             for (const auto& step : steps) {
                 int x = step.first;
                 int y = step.second;
+                CString debugMessage;
+                debugMessage.Format(_T("Coordinates: %d, %d\n"), x, y);
+                AfxMessageBox(debugMessage); // 좌표를 메시지 박스로 표시
                 CRect crect;
                 GetClientRect(&crect);
                 Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
@@ -330,7 +334,7 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1, 30, 150, 60);
 
         // GDI+ Bitmap으로 변환
-        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols, src.rows, src.step, PixelFormat24bppRGB, src.data);
+        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols-244, src.rows, src.step, PixelFormat24bppRGB, src.data);
 
         // 다이얼로그의 클라이언트 영역 크기 가져오기
         CRect clientRect;
@@ -346,6 +350,10 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         graphics.Clear(Gdiplus::Color(0, 0, 0, 0)); // 기존 이미지 지우기
         graphics.DrawImage(bitmap, imgX, imgY, src.cols - 244, src.rows);
 
+        // 인수들을 숫자 형태로 메시지 박스에 띄우기
+        CString message;
+        message.Format(_T("imgX: %d, imgY: %d, width: %d, height: %d"), imgX, imgY, src.cols - 244, src.rows);
+        AfxMessageBox(message);
         // 원의 중심 좌표에 X 모양 그리기
         Gdiplus::Pen pen(Gdiplus::Color(255, 0, 0), 2);
         for (const auto& c : circles)
@@ -359,7 +367,7 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
             graphics.DrawLine(&pen, x - 10, y + 10, x + 10, y - 10); // 대각선 2
 
             // 원 그리기
-            Gdiplus::Pen pen(Gdiplus::Color(0, 0, 0), 2);
+            Gdiplus::Pen pen(Gdiplus::Color(255, 255, 255), 2);
             graphics.DrawEllipse(&pen, x - radius, y - radius, radius * 2, radius * 2);
 
             // 좌표값 표시
