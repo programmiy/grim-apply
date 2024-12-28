@@ -32,6 +32,7 @@ BEGIN_MESSAGE_MAP(CImageDialogAppDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_OPEN, &CImageDialogAppDlg::OnBnClickedButtonOpen)
     ON_WM_SYSCOMMAND()
     ON_WM_PAINT()
+    ON_EN_CHANGE(IDC_EDIT_X1, &CImageDialogAppDlg::OnEnChangeEditX1)
     
     
 END_MESSAGE_MAP()
@@ -114,7 +115,15 @@ CImageDialogAppDlg::~CImageDialogAppDlg()
     CDialogEx::OnDestroy();
 }
 
+void CImageDialogAppDlg::OnEnChangeEditX1()
+{
 
+    if (!m_bFirstWarningShown)
+    {
+        AfxMessageBox(_T("open cv의 문제로 22이하의 값 입력시 중심좌표를 발견하지 못할 수 있습니다.(중심좌표가 윈도우 밖에 생깁니다)"));
+        m_bFirstWarningShown = true; // 경고 메시지를 한 번만 표시하도록 플래그 설정
+    }
+}
 
 void CImageDialogAppDlg::OnBnClickedButtonDraw()
 {
@@ -232,9 +241,9 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
             for (const auto& step : steps) {
                 int x = step.first;
                 int y = step.second;
-                CString debugMessage;
-                debugMessage.Format(_T("Coordinates: %d, %d\n"), x, y);
-                AfxMessageBox(debugMessage); // 좌표를 메시지 박스로 표시
+                // CString debugMessage;
+                // debugMessage.Format(_T("Coordinates: %d, %d\n"), x, y);
+                // AfxMessageBox(debugMessage); // 좌표를 메시지 박스로 표시
                 CRect crect;
                 GetClientRect(&crect);
                 Gdiplus::Bitmap bitmap(crect.Width()-244, crect.Height(), PixelFormat24bppRGB);
@@ -347,29 +356,45 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         // 다이얼로그에 이미지 출력
         CClientDC dc(this);
         Gdiplus::Graphics graphics(dc);
-        graphics.Clear(Gdiplus::Color(0, 0, 0, 0)); // 기존 이미지 지우기
+        Gdiplus::SolidBrush blackBrush(Gdiplus::Color(0, 0, 0));
+        graphics.FillRectangle(&blackBrush, 0, 0, clientRect.Width() - 244, clientRect.Height());
         graphics.DrawImage(bitmap, imgX, imgY, src.cols - 244, src.rows);
 
-        // 인수들을 숫자 형태로 메시지 박스에 띄우기
-        CString message;
-        message.Format(_T("imgX: %d, imgY: %d, width: %d, height: %d"), imgX, imgY, src.cols - 244, src.rows);
-        AfxMessageBox(message);
+        // // 인수들을 숫자 형태로 메시지 박스에 띄우기
+        // CString message;
+        // message.Format(_T("imgX: %d, imgY: %d, width: %d, height: %d"), imgX, imgY, src.cols - 244, src.rows);
+        // AfxMessageBox(message);
         // 원의 중심 좌표에 X 모양 그리기
-        Gdiplus::Pen pen(Gdiplus::Color(255, 0, 0), 2);
+        Gdiplus::Pen rpen(Gdiplus::Color(255, 0, 0), 2);
+        Gdiplus::SolidBrush whiteBrush(Gdiplus::Color(255, 255, 255));
+        Gdiplus::Pen pen(Gdiplus::Color(255, 255, 255), 2);
         for (const auto& c : circles)
         {
             int x = imgX + cvRound(c[0]);
             int y = imgY + cvRound(c[1]);
-            int radius = cvRound(c[2]);
+            int radius = cvRound(c[2]); 
+            // x + radius와 y + radius가 이미지 경계를 벗어나지 않도록 조정
+            if (x + radius > clientRect.Width() - 50) {
+                x = clientRect.Width() - radius - 50;
+            }
+            if (y + radius > clientRect.Height() - 50) {
+                y = clientRect.Height() - radius - 50;
+            }
+            
+            //     // 디버깅을 위해 원의 좌표와 반지름을 출력
+            // CString debugMessage;
+            // debugMessage.Format(_T("Circle %d: x = %d, y = %d, radius = %d"), c, x, y, radius);
+            // AfxMessageBox(debugMessage);
 
-            // X 모양 그리기
-            graphics.DrawLine(&pen, x - 10, y - 10, x + 10, y + 10); // 대각선 1
-            graphics.DrawLine(&pen, x - 10, y + 10, x + 10, y - 10); // 대각선 2
+            
+            graphics.FillEllipse(&whiteBrush, x - radius, y - radius, radius * 2, radius * 2);
 
-            // 원 그리기
-            Gdiplus::Pen pen(Gdiplus::Color(255, 255, 255), 2);
+            
             graphics.DrawEllipse(&pen, x - radius, y - radius, radius * 2, radius * 2);
-
+            
+            // X 모양 그리기
+            graphics.DrawLine(&rpen, x - 10, y - 10, x + 10, y + 10); // 대각선 1
+            graphics.DrawLine(&rpen, x - 10, y + 10, x + 10, y - 10); // 대각선 2
             // 좌표값 표시
             CString str;
             str.Format(_T("(%d, %d)"), x, y);

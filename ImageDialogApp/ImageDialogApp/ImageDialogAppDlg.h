@@ -1,9 +1,14 @@
-﻿#define WM_USER_UPDATE_BITMAP (WM_USER + 1)
+﻿
 
 // ImageDialogAppDlg.h: 헤더 파일
 //
 
 #pragma once
+
+#include <afxwin.h>
+#include <afxext.h>
+#include <afxcmn.h>
+#include <gdiplus.h>
 
 
 // CImageDialogAppDlg 대화 상자
@@ -17,7 +22,7 @@ public:
 	afx_msg void OnBnClickedButtonOpen();
 	virtual BOOL OnInitDialog();
 	afx_msg LRESULT OnUpdateBitmap(WPARAM wParam, LPARAM lParam);
-
+	afx_msg void OnEnChangeEditX1();
 
     virtual ~CImageDialogAppDlg();                  // 소멸자 추가
 	// 대화 상자 데이터입니다.
@@ -30,7 +35,7 @@ private:
     int m_y;
 	ULONG_PTR gdiplusToken;
     Gdiplus::Bitmap* m_bitmap; // GDI+ Bitmap 포인터
-
+	bool m_bFirstWarningShown;
     int m_radius; // 반지름을 저장하는 멤버 변수
 
 protected:

@@ -20,7 +20,9 @@
 #define IDC_STATIC_Y1_LABEL             1010
 #define IDC_STATIC_X2_LABEL             1011
 #define IDC_STATIC_Y2_LABEL             1012
+#define IDC_EDIT_X1                     1013
 
+#define WM_USER_UPDATE_BITMAP (WM_USER + 1)
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
