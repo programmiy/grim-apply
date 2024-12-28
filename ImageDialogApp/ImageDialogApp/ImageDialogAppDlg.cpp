@@ -79,7 +79,7 @@ BOOL CImageDialogAppDlg::OnInitDialog()
             pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
         }
     }
-    m_radius = (rand() % 90) + 10;
+    m_radius = (rand() % 90) + 20;
     SetIcon(m_hIcon, TRUE);         // 큰 아이콘을 설정합니다.
     SetIcon(m_hIcon, FALSE);        // 작은 아이콘을 설정합니다.
     
@@ -127,6 +127,7 @@ void CImageDialogAppDlg::OnEnChangeEditX1()
 
 void CImageDialogAppDlg::OnBnClickedButtonDraw()
 {
+    
     try
     {
         // 작업완료
@@ -215,10 +216,10 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
     ULONG_PTR gdiplusToken;
     Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-
+    int random_radius = ( rand() % 20)+ 20;
 
     // 별도의 스레드에서 작업을 수행합니다.
-    std::thread([this, gdiplusToken]() {
+    std::thread([this, gdiplusToken , random_radius]() {
         try {
             CString strX1, strY1, strX2, strY2;
             m_editX1.GetWindowText(strX1);
@@ -231,16 +232,16 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
             int x2 = _ttoi(strX2);
             int y2 = _ttoi(strY2);
 
-            double dx = (x2 - x1) / 50.0;
-            double dy = (y2 - y1) / 50.0;
-            std::vector<std::pair<int, int>> steps;
-            steps.push_back({ x1, y1 }); // 첫 번째 스텝 추가
-            for (int i = 1; i <= 50; ++i) {
-                steps.push_back({ static_cast<int>(x1 + i * dx), static_cast<int>(y1 + i * dy) });
-            }         
-            for (const auto& step : steps) {
-                int x = step.first;
-                int y = step.second;
+            // 이동할 스텝 설정
+            int stepCount = 100;  // 100 스텝으로 나눈다고 가정
+            int dx = x2 - x1;
+            int dy = y2 - y1;
+
+            double stepSize = 1.0 / stepCount;  // 이동 간격 비율
+            for (int i = 0; i <= stepCount; ++i) {
+                double t = stepSize * i;  // 현재 비율
+                int x= static_cast<int>(x1 + t * dx);
+                int y= static_cast<int>(y1 + t * dy);
                 // CString debugMessage;
                 // debugMessage.Format(_T("Coordinates: %d, %d\n"), x, y);
                 // AfxMessageBox(debugMessage); // 좌표를 메시지 박스로 표시
@@ -256,7 +257,7 @@ void CImageDialogAppDlg::OnBnClickedButtonAction()
 
                 int width = bitmap.GetWidth();
                 int height = bitmap.GetHeight();
-                int random_radius = m_radius;
+                
 
                 SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
                 graphics.FillEllipse(&brush, x - random_radius, y - random_radius, random_radius * 2, random_radius * 2);
