@@ -325,19 +325,20 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         if (src.empty())
         {
             AfxMessageBox(_T("이미지를 읽을 수 없습니다."));
+            src.release(); // 메모리 해제
             return;
         }
-        // 이미지를 그레이스케일로 변환
-        cv::Mat src_gray;
-        cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
+        // 이미지를 그레이스케일로 변환 + 동적할당... 적용?
+        cv::Mat* src_gray = new cv::Mat();
+        cv::cvtColor(src, *src_gray, cv::COLOR_BGR2GRAY);
 
-        // 블러링 처리
-        cv::Mat blurred;
-        cv::blur(src_gray, blurred, cv::Size(7, 7));
+        // 블러링 처리 + 동적할당... 적용?
+        cv::Mat* blurred = new cv::Mat();
+        cv::blur(*src_gray, *blurred, cv::Size(7, 7));
 
         // 원 검출
         std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1, 30, 150, 60);
+        cv::HoughCircles(*blurred, circles, cv::HOUGH_GRADIENT, 1, 30, 150, 60);
 
         // GDI+ Bitmap으로 변환
 
