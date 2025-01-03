@@ -18,9 +18,9 @@ using namespace cv;
 
 
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+// #ifdef _DEBUG
+// #define new DEBUG_NEW
+// #endif
 
 BEGIN_MESSAGE_MAP(CImageDialogAppDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_DRAW, &CImageDialogAppDlg::OnBnClickedButtonDraw)
@@ -138,16 +138,18 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         int width = crect.Width()-244;
         int height = crect.Height();
         
-        Gdiplus::Bitmap* pBitmap = new Gdiplus::Bitmap(width, height, PixelFormat24bppRGB);
-        Gdiplus::Graphics* pGraphics = new Gdiplus::Graphics(pBitmap);
-        pGraphics->Clear(Gdiplus::Color(0, 0, 0, 0));
+        Gdiplus::Bitmap* pBitmap = new Gdiplus::Bitmap(width, height, PixelFormat32bppARGB);
+        Gdiplus::Graphics graphics(pBitmap);
+        graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
+
+        
 
         Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
 
         width = pBitmap->GetWidth();
         
         int random_radius = m_radius;
-        pGraphics->FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
+        graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
 
         
         if (m_bitmap != nullptr)
@@ -155,10 +157,12 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
             delete m_bitmap; 
         }
         m_bitmap =  pBitmap->Clone(0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), PixelFormat24bppRGB);
-
+        //사용한 후 해제
+        delete pBitmap;
 
 
         Invalidate();  
+
     }
     catch(const std::exception& )
     {
@@ -336,14 +340,14 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1, 30, 150, 60);
 
         // GDI+ Bitmap으로 변환
-        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols-244, src.rows, src.step, PixelFormat24bppRGB, src.data);
-
+        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols, src.rows, PixelFormat24bppRGB);
+       
         // 다이얼로그의 클라이언트 영역 크기 가져오기
         CRect clientRect;
         GetClientRect(&clientRect);
 
         // 이미지의 중앙 좌표 계산
-        int imgX = (clientRect.Width() -244 - src.cols) / 2;
+        int imgX = (clientRect.Width() - 244 - src.cols) / 2;
         int imgY = (clientRect.Height() - src.rows) / 2;
 
         // 다이얼로그에 이미지 출력
@@ -352,8 +356,6 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         Gdiplus::SolidBrush blackBrush(Gdiplus::Color(0, 0, 0));
         graphics.FillRectangle(&blackBrush, 0, 0, clientRect.Width() - 244, clientRect.Height());
         graphics.DrawImage(bitmap, imgX, imgY, src.cols - 244, src.rows);
-
-
 
         // 원의 중심 좌표에 X 모양 그리기
         Gdiplus::Pen rpen(Gdiplus::Color(255, 0, 0), 2);
@@ -371,13 +373,8 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
             if (y + radius > clientRect.Height() - 50) {
                 y = clientRect.Height() - radius - 50;
             }
-            
 
-
-            
             graphics.FillEllipse(&whiteBrush, x - radius, y - radius, radius * 2, radius * 2);
-
-            
             graphics.DrawEllipse(&pen, x - radius, y - radius, radius * 2, radius * 2);
             
             // X 모양 그리기
@@ -437,5 +434,3 @@ void CImageDialogAppDlg::OnPaint()
 
     CDialogEx::OnPaint();
 }
-
-
