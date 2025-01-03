@@ -1,5 +1,4 @@
-﻿
-// extraChallengeDlg.cpp: 구현 파일
+﻿// extraChallengeDlg.cpp: 구현 파일
 //
 
 #include "pch.h"
@@ -65,6 +64,7 @@ BEGIN_MESSAGE_MAP(CextraChallengeDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_LBUTTONDOWN() // 마우스 클릭 이벤트 추가
 END_MESSAGE_MAP()
 
 
@@ -98,7 +98,7 @@ BOOL CextraChallengeDlg::OnInitDialog()
 	//  프레임워크가 이 작업을 자동으로 수행합니다.
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
-
+	SetWindowText(_T("추가문제 - 정원그리기"));
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -142,7 +142,10 @@ void CextraChallengeDlg::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+
+		CPaintDC dc(this);
+        DrawAllCircles(&dc);
+
 	}
 }
 
@@ -153,3 +156,79 @@ HCURSOR CextraChallengeDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CextraChallengeDlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+    if (m_clickPoints.size() < 3)
+    {
+        m_clickPoints.push_back(point);
+        // 클릭할 때마다 다른 색상 선택
+        COLORREF colors[] = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255) };
+        m_colors.push_back(colors[m_clickPoints.size() - 1]);
+
+        Invalidate(); // 화면 갱신
+    }
+    else
+    {
+        AfxMessageBox(_T("이미 3개의 클릭 지점이 설정되었습니다."));
+    }
+    CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+void CextraChallengeDlg::DrawCircle(CDC* pDC, CPoint center, int radius, int thickness, COLORREF color, bool fill)
+{
+    CPen pen(PS_SOLID, thickness, color);
+    CPen* pOldPen = pDC->SelectObject(&pen);
+    CBrush brush(color);
+    CBrush* pOldBrush = nullptr;
+
+    if (fill)
+    {
+        pOldBrush = pDC->SelectObject(&brush); // 내부를 채움
+    }
+    else
+    {
+        pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH); // 내부를 채우지 않음
+    }
+
+    pDC->Ellipse(center.x - radius, center.y - radius, center.x + radius, center.y + radius);
+    pDC->SelectObject(pOldPen);
+    pDC->SelectObject(pOldBrush);
+}
+
+void CextraChallengeDlg::DrawAllCircles(CDC* pDC)
+{
+    for (size_t i = 0; i < m_clickPoints.size(); ++i)
+    {
+        DrawCircle(pDC, m_clickPoints[i], 10, 2, m_colors[i], true); // 클릭 지점 원 그리기 (내부 채움)
+    }
+
+    if (m_clickPoints.size() == 3)
+    {
+        // 세 클릭 지점을 모두 지나가는 정원 그리기
+        // 예외 처리 추가
+        try
+        {
+            // 세 점을 모두 지나가는 원의 중심과 반지름 계산
+            // 세 점을 이용하여 원의 중심과 반지름을 계산하는 알고리즘 사용
+            CPoint center;
+            double x1 = m_clickPoints[0].x, y1 = m_clickPoints[0].y;
+            double x2 = m_clickPoints[1].x, y2 = m_clickPoints[1].y;
+            double x3 = m_clickPoints[2].x, y3 = m_clickPoints[2].y;
+
+            double a = x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2;
+            double b = (x1 * x1 + y1 * y1) * (y3 - y2) + (x2 * x2 + y2 * y2) * (y1 - y3) + (x3 * x3 + y3 * y3) * (y2 - y1);
+            double c = (x1 * x1 + y1 * y1) * (x2 - x3) + (x2 * x2 + y2 * y2) * (x3 - x1) + (x3 * x3 + y3 * y3) * (x1 - x2);
+            double d = (x1 * x1 + y1 * y1) * (x3 * y2 - x2 * y3) + (x2 * x2 + y2 * y2) * (x1 * y3 - x3 * y1) + (x3 * x3 + y3 * y3) * (x2 * y1 - x1 * y2);
+
+            center.x = -b / (2 * a);
+            center.y = -c / (2 * a);
+            int radius = sqrt((b * b + c * c - 4 * a * d) / (4 * a * a));
+
+            DrawCircle(pDC, center, radius, 2, RGB(0, 0, 0), false); // 기본 색상으로 검정색 사용, 내부 채우지 않음
+        }
+        catch (...)
+        {
+            AfxMessageBox(_T("정원을 그릴 수 없습니다."));
+        }
+    }
+}
