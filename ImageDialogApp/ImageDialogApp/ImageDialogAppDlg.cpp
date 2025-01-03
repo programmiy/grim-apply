@@ -340,8 +340,9 @@ void CImageDialogAppDlg::OnBnClickedButtonOpen()
         cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1, 30, 150, 60);
 
         // GDI+ Bitmap으로 변환
-        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols-244, src.rows, PixelFormat24bppRGB);
-       
+
+        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(src.cols - 244, src.rows, src.step, PixelFormat24bppRGB, src.data);
+
         // 다이얼로그의 클라이언트 영역 크기 가져오기
         CRect clientRect;
         GetClientRect(&clientRect);
