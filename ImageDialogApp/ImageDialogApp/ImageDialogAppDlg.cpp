@@ -138,24 +138,24 @@ void CImageDialogAppDlg::OnBnClickedButtonDraw()
         int width = crect.Width()-244;
         int height = crect.Height();
         
-        Gdiplus::Bitmap bitmap(width, height, PixelFormat24bppRGB);
-        Gdiplus::Graphics graphics(&bitmap);
-        graphics.Clear(Gdiplus::Color(0, 0, 0, 0));
+        Gdiplus::Bitmap* pBitmap = new Gdiplus::Bitmap(width, height, PixelFormat24bppRGB);
+        Gdiplus::Graphics* pGraphics = new Gdiplus::Graphics(pBitmap);
+        pGraphics->Clear(Gdiplus::Color(0, 0, 0, 0));
 
         Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255, 255));
 
-        width = bitmap.GetWidth();
+        width = pBitmap->GetWidth();
         
         int random_radius = m_radius;
-        graphics.FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
-
+        pGraphics->FillEllipse(&brush, x1 - random_radius, y1 - random_radius, random_radius * 2, random_radius * 2);
 
         
         if (m_bitmap != nullptr)
         {
             delete m_bitmap; 
         }
-        m_bitmap = bitmap.Clone(0, 0, bitmap.GetWidth(), bitmap.GetHeight(), PixelFormat24bppRGB);
+        m_bitmap =  pBitmap->Clone(0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), PixelFormat24bppRGB);
+
 
 
         Invalidate();  
